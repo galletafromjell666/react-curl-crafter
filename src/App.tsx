@@ -1,11 +1,11 @@
-import Form from "./modules/form/Form";
-import Preview from "./modules/preview/Preview";
+import Form from "./modules/form";
+import Preview from "./modules/preview";
 
 function App() {
   return (
-    <div className="bg-base-100 m-4 flex">
-      <Form/>
-      <Preview/>
+    <div className="m-4 flex flex-col gap-y-4 bg-base-100 md:flex-row md:gap-y-0">
+      <Form />
+      <Preview />
     </div>
   );
 }
