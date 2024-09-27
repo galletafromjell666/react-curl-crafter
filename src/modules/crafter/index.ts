@@ -38,3 +38,18 @@ export function getHeadersString(formState: FormState): string {
   });
   return headersString;
 }
+
+export function getData(formState: FormState): string {
+  const { data } = formState;
+  if (isEmpty(data)) return "";
+  // Not empty
+  let stringData = "";
+  try {
+    stringData = JSON.stringify(data);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (e) {
+    stringData = data as string;
+  }
+  stringData = stringData.replace(/ {2}|\r\n|\n|\r/gm, "");
+  return `\\${NEW_LINE}${TAB}--data-raw ${stringData}`;
+}
