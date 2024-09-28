@@ -16,40 +16,53 @@ interface FormState {
   data: JsonData | string;
 }
 
-const NEW_LINE = "\n";
-const TAB = "\t";
+const NEW_LINE = '\n'
+const TAB = '\t'
+const CONTINUE_ON_NEW_LINE = ` \\${NEW_LINE}${TAB}`
 
 export function craftCurl(formState: FormState) {
-  let curlString = `curl '${formState.url}' \\${NEW_LINE}${TAB}-X '${formState.method}' \\${NEW_LINE}${TAB}`;
-  // Add headers
-  const headersString = getHeadersString(formState);
-  curlString = curlString.concat(headersString);
-  return curlString;
+	let curlString = `curl '${formState.url}'${CONTINUE_ON_NEW_LINE}-X '${formState.method}'`
+	const data = getData(formState)
+	const headers = [...formState.headers]
+	if (data) headers.push(data.contentHeader)
+	const headersString = getHeadersString(headers)
+
+	if(headers)curlString = curlString.concat(headersString)
+	if(data?.stringData) curlString = curlString.concat(data.stringData)
+
+	return curlString
 }
 
-export function getHeadersString(formState: FormState): string {
-  const { headers } = formState;
-  if (isEmpty(headers)) return "";
-  // not empty
-  let headersString = "";
-  headers.forEach((header) => {
-    const headerString = `\\${NEW_LINE}${TAB}-H '${header.key}: ${header.value}'`;
-    headersString = headersString.concat(headerString);
-  });
-  return headersString;
+export function getHeadersString(headers: Header[]): string {
+	if (isEmpty(headers)) return ''
+	// not empty
+	let headersString = ''
+	headers.forEach((header) => {
+		const headerString = `${CONTINUE_ON_NEW_LINE}-H '${header.key}: ${header.value}'`
+		headersString = headersString.concat(headerString)
+	})
+	return headersString
 }
 
-export function getData(formState: FormState): string {
-  const { data } = formState;
-  if (isEmpty(data)) return "";
-  // Not empty
-  let stringData = "";
-  try {
-    stringData = JSON.stringify(data);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (e) {
-    stringData = data as string;
-  }
-  stringData = stringData.replace(/ {2}|\r\n|\n|\r/gm, "");
-  return `\\${NEW_LINE}${TAB}--data-raw ${stringData}`;
+export function getData(
+	formState: FormState
+): { contentHeader: Header; stringData: string } | null {
+	const { data } = formState
+	if (isEmpty(data)) return null
+	// Not empty
+	let stringData = ''
+	const contentHeader = { key: 'Content-Type', value: '' }
+	try {
+		const jsonStringData = JSON.stringify(data)
+		stringData = `$${jsonStringData}`
+		contentHeader.value = 'application/json'
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	} catch (error) {
+		stringData = data as string
+		contentHeader.value = 'text/plain'
+	}
+	// Remove all whitespace
+	stringData = stringData.replace(/ {2}|\r\n|\n|\r/gm, '')
+	stringData = `${CONTINUE_ON_NEW_LINE}--data-raw ${stringData}`
+	return { contentHeader, stringData }
 }
