@@ -1,9 +1,13 @@
-import React, { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import Logo from "./components/Logo";
+import { getFormattedData } from "../../utils";
+import clsx from "clsx";
 
 function Form() {
-  const { register, handleSubmit, control } = useForm({
+  const [isFormatDataError, setIsFormatDataError] = useState(false);
+
+  const { register, handleSubmit, control, setValue, getValues } = useForm({
     defaultValues: {
       headers: [{ key: "X-AUTH-TOKEN", value: "" }],
       url: "",
@@ -30,7 +34,17 @@ function Form() {
     [remove],
   );
 
-  const onSubmit: SubmitHandler<any> = (data) => console.log("submit", data);
+  const onFormatData = () => {
+    const inputData = getValues("data");
+    const { stringResult, isError } = getFormattedData(inputData);
+
+    setValue("data", stringResult);
+    setIsFormatDataError(isError);
+  };
+
+  const onSubmit: SubmitHandler<any> = (data) => {
+    console.log("submit handler", data);
+  };
 
   return (
     <div className="flex-1">
@@ -76,6 +90,7 @@ function Form() {
                     className="input input-bordered w-full max-w-xs"
                   />
                   <button
+                    type="button"
                     onClick={() => onRemoveHeader(index)}
                     className="btn btn-outline btn-warning btn-sm"
                   >
@@ -86,6 +101,7 @@ function Form() {
             })}
           </div>
           <button
+            type="button"
             className="btn btn-outline btn-sm mx-auto w-2/5"
             onClick={onAddHeader}
           >
@@ -99,15 +115,32 @@ function Form() {
           <h2>Data</h2>
           <div className="flex flex-col items-start gap-y-2">
             <textarea
-              className="textarea textarea-bordered h-[200px] w-full resize-none"
+              className={clsx(
+                "textarea h-[200px] w-full resize-none",
+                { "input-error": isFormatDataError },
+                { "textarea-bordered": !isFormatDataError },
+              )}
               id="data"
               {...register("data")}
             />
-            <button className="btn btn-outline btn-sm">Format</button>
+            <div className="flex items-center gap-x-2">
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={onFormatData}
+              >
+                Format
+              </button>
+              {isFormatDataError && (
+                <h3 className="text-error">Unable to format data</h3>
+              )}
+            </div>
           </div>
         </div>
         <div className="flex justify-center">
-          <button className="btn btn-outline w-3/5">Craft!</button>
+          <button type="submit" className="btn btn-outline w-3/5">
+            Craft!
+          </button>
         </div>
       </form>
     </div>
