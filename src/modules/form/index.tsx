@@ -1,27 +1,34 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import clsx from "clsx";
 import Logo from "./components/Logo";
 import { getFormattedData } from "../../utils";
-import clsx from "clsx";
+import { craftCurl } from "../crafter";
+import { useSetCurlString } from "../../store/crafterStore";
+
+const availableMethods = ["GET", "DELETE", "PUT", "POST", "PATCH"];
 
 function Form() {
+  const setCurlString = useSetCurlString();
   const [isFormatDataError, setIsFormatDataError] = useState(false);
 
-  const { register, handleSubmit, control, setValue, getValues } = useForm({
-    defaultValues: {
-      headers: [{ key: "X-AUTH-TOKEN", value: "" }],
-      url: "",
-      data: "",
-    },
-  });
+  const { register, handleSubmit, control, setValue, getValues, watch } =
+    useForm({
+      defaultValues: {
+        method: availableMethods[0],
+        headers: [{ key: "X-AUTH-TOKEN", value: "" }],
+        url: "",
+        data: "",
+      },
+    });
+
+  const [method] = watch(["method"]);
+  console.log({ method });
 
   const { fields, append, remove } = useFieldArray({
     name: "headers",
     control,
   });
-
-  // const watchAllFields = watch();
-  // console.log(watchAllFields);
 
   const onAddHeader = useCallback(() => {
     append({ key: "", value: "" });
@@ -42,8 +49,15 @@ function Form() {
     setIsFormatDataError(isError);
   };
 
+  const cleanMethods = useMemo(() => {
+    return availableMethods.filter((m) => m !== method);
+  }, [method]);
+
   const onSubmit: SubmitHandler<any> = (data) => {
-    console.log("submit handler", data);
+    console.log("input", data);
+    const value = craftCurl({ ...data, method: "GET" });
+    console.log("output", value);
+    setCurlString(value);
   };
 
   return (
@@ -63,6 +77,31 @@ function Form() {
             className="input input-bordered w-full"
           />
         </div>
+        <div className="m-4 flex flex-col gap-y-2 rounded-xl border-2 border-base-content/10 p-2">
+          <label>Method</label>
+          <div className="dropdown dropdown-bottom">
+            <div tabIndex={0} role="button" className="btn m-1 w-32">
+              {method}
+            </div>
+            <ul
+              tabIndex={0}
+              className="menu dropdown-content z-[1] w-52 rounded-box bg-base-100 p-2 shadow"
+            >
+              {cleanMethods.map((method) => {
+                return (
+                  <li
+                    role="button"
+                    onClick={() => {
+                      setValue("method", method);
+                    }}
+                  >
+                    <a>{method}</a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </div>
         <div
           data-test-id="url-section"
           className="m-4 flex flex-col gap-y-2 rounded-xl border-2 border-base-content/10 p-2"
@@ -76,14 +115,12 @@ function Form() {
                   key={field.id}
                 >
                   <input
-                    id="header_1_key"
                     {...register(`headers.${index}.key` as const)}
                     type="text"
                     placeholder="Header key"
                     className="input input-bordered w-full max-w-xs"
                   />
                   <input
-                    id="header_1_value"
                     {...register(`headers.${index}.value` as const)}
                     type="text"
                     placeholder="Header value"
