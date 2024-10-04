@@ -53,19 +53,25 @@ export function getData(
   let stringData = "";
   const contentHeader = { key: "Content-Type", value: "" };
   try {
-    const jsonStringData = JSON.stringify(data);
-    stringData = `$${jsonStringData}`;
+    const jsonStringData = JSON.stringify(JSON.parse(data as string));
+    stringData = stringData.concat("$", `"${jsonStringData}"`);
     contentHeader.value = "application/json";
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     stringData = data as string;
     contentHeader.value = "text/plain";
   }
-  // Remove all whitespace
-  console.log("unthreated:", stringData);
-  stringData = stringData.replace(/\\r|\\n/g, "").replace(/\s+/g, "");
-  console.log("threated:", stringData);
-  stringData = `${CONTINUE_ON_NEW_LINE}--data-raw ${stringData}`;
+  // Log the unmodified string
+  console.log("unmodified:", stringData);
 
-  return { contentHeader, stringData };
+  // Remove all whitespace and \r or \n characters
+  let newStr = stringData.replace(/\\r|\\n/g, "").replace(/\s+/g, "");
+
+  // Log the modified string
+  console.log("modified:", newStr);
+
+  // Add the necessary prefix for CONTINUE_ON_NEW_LINE
+  newStr = `${CONTINUE_ON_NEW_LINE}--data-raw ${newStr}`;
+
+  return { contentHeader, stringData: newStr };
 }
