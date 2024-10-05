@@ -54,7 +54,7 @@ export function getData(
   const contentHeader = { key: "Content-Type", value: "" };
   try {
     const jsonStringData = JSON.stringify(JSON.parse(data as string));
-    stringData = stringData.concat("$", `"${jsonStringData}"`);
+    stringData = stringData.concat("$", `'${jsonStringData}'`);
     contentHeader.value = "application/json";
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {

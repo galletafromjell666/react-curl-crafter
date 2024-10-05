@@ -55,7 +55,7 @@ function Form() {
 
   const onSubmit: SubmitHandler<any> = (data) => {
     console.log("input", data);
-    const value = craftCurl({ ...data, method: "GET" });
+    const value = craftCurl(data);
     console.log("output", value);
     setCurlString(value);
   };
