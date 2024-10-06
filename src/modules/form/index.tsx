@@ -16,7 +16,7 @@ function Form() {
     useForm({
       defaultValues: {
         method: availableMethods[0],
-        headers: [{ key: "X-AUTH-TOKEN", value: "" }],
+        headers: [{ key: "X-Auth-Token", value: "" }],
         url: "",
         data: "",
       },
@@ -54,9 +54,7 @@ function Form() {
   }, [method]);
 
   const onSubmit: SubmitHandler<any> = (data) => {
-    console.log("input", data);
     const value = craftCurl(data);
-    console.log("output", value);
     setCurlString(value);
   };
 
@@ -64,42 +62,44 @@ function Form() {
     <div className="flex-1">
       <Logo />
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div
-          data-test-id="url-section"
-          className="m-4 flex flex-col gap-y-2 rounded-xl border-2 border-base-content/10 p-2"
-        >
-          <label htmlFor="url">URL</label>
-          <input
-            id="url"
-            {...register("url")}
-            type="text"
-            placeholder="http://127.0.0.1:8080/test"
-            className="input input-bordered w-full"
-          />
-        </div>
-        <div className="m-4 flex flex-col gap-y-2 rounded-xl border-2 border-base-content/10 p-2">
-          <label>Method</label>
-          <div className="dropdown dropdown-bottom">
-            <div tabIndex={0} role="button" className="btn m-1 w-32">
-              {method}
+        <div className="flex mx-4 mt-4 space-x-4">
+          <div className="flex flex-col gap-y-2 rounded-xl border-2 border-base-content/10 p-2">
+            <label>Method</label>
+            <div className="dropdown dropdown-bottom">
+              <div tabIndex={0} role="button" className="btn m-1 w-32">
+                {method}
+              </div>
+              <ul
+                tabIndex={0}
+                className="menu dropdown-content z-[1] w-52 rounded-box bg-base-100 p-2 shadow"
+              >
+                {cleanMethods.map((method) => {
+                  return (
+                    <li
+                      role="button"
+                      onClick={() => {
+                        setValue("method", method);
+                      }}
+                    >
+                      <a>{method}</a>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
-            <ul
-              tabIndex={0}
-              className="menu dropdown-content z-[1] w-52 rounded-box bg-base-100 p-2 shadow"
-            >
-              {cleanMethods.map((method) => {
-                return (
-                  <li
-                    role="button"
-                    onClick={() => {
-                      setValue("method", method);
-                    }}
-                  >
-                    <a>{method}</a>
-                  </li>
-                );
-              })}
-            </ul>
+          </div>
+          <div
+            data-test-id="url-section"
+            className="flex flex-1 flex-col gap-y-2 rounded-xl border-2 border-base-content/10 p-2"
+          >
+            <label htmlFor="url">URL</label>
+            <input
+              id="url"
+              {...register("url")}
+              type="text"
+              placeholder="http://127.0.0.1:8080/test"
+              className="input input-bordered w-full"
+            />
           </div>
         </div>
         <div
@@ -118,13 +118,13 @@ function Form() {
                     {...register(`headers.${index}.key` as const)}
                     type="text"
                     placeholder="Header key"
-                    className="input input-bordered w-full max-w-xs"
+                    className="input input-bordered w-full"
                   />
                   <input
                     {...register(`headers.${index}.value` as const)}
                     type="text"
                     placeholder="Header value"
-                    className="input input-bordered w-full max-w-xs"
+                    className="input input-bordered w-full"
                   />
                   <button
                     type="button"
