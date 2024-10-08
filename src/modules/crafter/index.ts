@@ -1,20 +1,5 @@
 import { isEmpty } from "lodash";
-
-interface Header {
-  key: string;
-  value: string;
-}
-
-interface JsonData {
-  [key: string]: string;
-}
-
-interface FormState {
-  url: string;
-  method: "GET" | "DELETE" | "PUT" | "POST" | "PATCH";
-  headers: Header[];
-  data: JsonData | string;
-}
+import { FormState, Header } from "../../types";
 
 const NEW_LINE = "\n";
 const TAB = "\t";
@@ -61,14 +46,9 @@ export function getData(
     stringData = data as string;
     contentHeader.value = "text/plain";
   }
-  // Log the unmodified string
-  console.log("unmodified:", stringData);
 
   // Remove all whitespace and \r or \n characters
   let newStr = stringData.replace(/\\r|\\n/g, "").replace(/\s+/g, "");
-
-  // Log the modified string
-  console.log("modified:", newStr);
 
   // Add the necessary prefix for CONTINUE_ON_NEW_LINE
   newStr = `${CONTINUE_ON_NEW_LINE}--data-raw ${newStr}`;

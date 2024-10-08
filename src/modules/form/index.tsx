@@ -1,29 +1,42 @@
 import { useCallback, useMemo, useState } from "react";
-import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import clsx from "clsx";
+import {
+  SubmitHandler,
+  useFieldArray,
+  useForm,
+  useFormState,
+} from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Logo from "./components/Logo";
 import { getFormattedData } from "../../utils";
 import { craftCurl } from "../crafter";
 import { useSetCurlString } from "../../store/crafterStore";
+import { formSchema } from "./resolvers";
+import { FormState, Methods } from "../../types";
 
-const availableMethods = ["GET", "DELETE", "PUT", "POST", "PATCH"];
+const availableMethods: Methods[] = ["GET", "DELETE", "PUT", "POST", "PATCH"];
 
 function Form() {
   const setCurlString = useSetCurlString();
   const [isFormatDataError, setIsFormatDataError] = useState(false);
 
   const { register, handleSubmit, control, setValue, getValues, watch } =
-    useForm({
+    useForm<FormState>({
+      mode: "onBlur",
       defaultValues: {
         method: availableMethods[0],
         headers: [{ key: "X-Auth-Token", value: "" }],
         url: "",
         data: "",
       },
+      resolver: zodResolver(formSchema),
     });
 
+  const { isValid } = useFormState({
+    control,
+  });
+
   const [method] = watch(["method"]);
-  console.log({ method });
 
   const { fields, append, remove } = useFieldArray({
     name: "headers",
@@ -43,7 +56,7 @@ function Form() {
 
   const onFormatData = () => {
     const inputData = getValues("data");
-    const { stringResult, isError } = getFormattedData(inputData);
+    const { stringResult, isError } = getFormattedData(inputData ?? "");
 
     setValue("data", stringResult);
     setIsFormatDataError(isError);
@@ -53,7 +66,7 @@ function Form() {
     return availableMethods.filter((m) => m !== method);
   }, [method]);
 
-  const onSubmit: SubmitHandler<any> = (data) => {
+  const onSubmit: SubmitHandler<FormState> = (data) => {
     const value = craftCurl(data);
     setCurlString(value);
   };
@@ -62,7 +75,7 @@ function Form() {
     <div className="flex-1">
       <Logo />
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="flex mx-4 mt-4 space-x-4">
+        <div className="mx-4 mt-4 flex space-x-4">
           <div className="flex flex-col gap-y-2 rounded-xl border-2 border-base-content/10 p-2">
             <label>Method</label>
             <div className="dropdown dropdown-bottom">
@@ -73,9 +86,10 @@ function Form() {
                 tabIndex={0}
                 className="menu dropdown-content z-[1] w-52 rounded-box bg-base-100 p-2 shadow"
               >
-                {cleanMethods.map((method) => {
+                {cleanMethods.map((method, index) => {
                   return (
                     <li
+                      key={index}
                       role="button"
                       onClick={() => {
                         setValue("method", method);
@@ -175,7 +189,11 @@ function Form() {
           </div>
         </div>
         <div className="flex justify-center">
-          <button type="submit" className="btn btn-outline w-3/5">
+          <button
+            type="submit"
+            className="btn btn-outline w-3/5"
+            disabled={!isValid}
+          >
             Craft!
           </button>
         </div>

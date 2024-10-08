@@ -5,7 +5,6 @@ import { useState } from "react";
 
 function Preview() {
   const curlString = useCurlString();
-
   const [isNotificationVisible, setIsNotificationVisible] = useState(false);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
