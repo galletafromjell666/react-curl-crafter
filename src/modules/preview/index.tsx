@@ -1,11 +1,21 @@
 import { useTimeoutFn } from "react-use";
 import { isEmpty } from "lodash";
 import { useCurlString } from "../../store/crafterStore";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function Preview() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   const curlString = useCurlString();
   const [isNotificationVisible, setIsNotificationVisible] = useState(false);
+
+  useEffect(() => {
+    scrollRef?.current?.scrollIntoView?.({
+      behavior: "smooth",
+      block: "start",
+      inline: "nearest",
+    });
+  }, [curlString]);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_isReady, _cancel, reset] = useTimeoutFn(() => {
@@ -25,7 +35,10 @@ function Preview() {
   if (isEmpty(curlString)) return null;
 
   return (
-    <div className="mt-4 h-full max-w-full flex-1 justify-center">
+    <div
+      ref={scrollRef}
+      className="mt-4 h-full max-w-full flex-1 justify-center"
+    >
       <div className="mockup-code">
         <pre>
           <code>{curlString}</code>
