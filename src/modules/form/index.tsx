@@ -13,6 +13,7 @@ import { craftCurl } from "../crafter";
 import { useSetCurlString } from "../../store/crafterStore";
 import { formSchema } from "./resolvers";
 import { FormState, Methods } from "../../types";
+import { isEmpty } from "lodash";
 
 const availableMethods: Methods[] = ["GET", "DELETE", "PUT", "POST", "PATCH"];
 
@@ -68,7 +69,11 @@ function Form() {
 
   const onSubmit: SubmitHandler<FormState> = (data) => {
     const value = craftCurl(data);
-    setCurlString(value);
+    console.log(value)
+    if (!isEmpty(value.contentTypeHeader)) {
+      append(value.contentTypeHeader);
+    }
+    setCurlString(value.curlString);
   };
 
   return (
