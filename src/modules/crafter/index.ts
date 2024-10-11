@@ -4,6 +4,7 @@ import { FormState, Header } from "../../types";
 const NEW_LINE = "\n";
 const TAB = "\t";
 const CONTINUE_ON_NEW_LINE = ` \\${NEW_LINE}${TAB}`;
+const CONTENT_TYPE_HEADER_KEY = "Content-Type";
 
 export function craftCurl(formState: FormState) {
   console.log(formState);
@@ -56,13 +57,16 @@ export function getData(
     stringData = stringData.concat("$", `'${jsonStringData}'`);
 
     if (createContentTypeHeader) {
-      contentHeader = { key: "Content-Type", value: "application/json" };
+      contentHeader = {
+        key: CONTENT_TYPE_HEADER_KEY,
+        value: "application/json",
+      };
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     stringData = data as string;
     if (createContentTypeHeader) {
-      contentHeader = { key: "Content-Type", value: "text/plain" };
+      contentHeader = { key: CONTENT_TYPE_HEADER_KEY, value: "text/plain" };
     }
   }
 
@@ -77,6 +81,6 @@ export function getData(
 // checks if there is a content type header
 export function verifyContentTypeHeader(headers: Header[]) {
   return headers.some(
-    (h) => h.key.toLowerCase() === "Content-Type".toLowerCase(),
+    (h) => h.key.toLowerCase() === CONTENT_TYPE_HEADER_KEY.toLowerCase(),
   );
 }
