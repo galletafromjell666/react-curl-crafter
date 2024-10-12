@@ -1,50 +1,34 @@
-# React + TypeScript + Vite
+# React-cUrl-crafter
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![crafted](https://github.com/galletafromjell666/react-curl-crafter/blob/assets/crafted.png?raw=true)
 
-Currently, two official plugins are available:
+A client-side web exclusive app that helps you quickly generate cURL commands for API interactions. With a simple form interface, you can input your desired URL, HTTP method, headers, and body data, and get a ready-to-use cURL command.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- Completely client-side (no backend), ensuring privacy for your inputs.
+- Supports multiple HTTP methods like GET, POST, PUT, DELETE and PATCH.
+- Easily customize request headers and data.
+- Generates a copy-ready cURL command for use in your terminal.
+- Ideal for developers working with APIs or debugging HTTP requests.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Stack
 
-- Configure the top-level `parserOptions` property like this:
+- TypeScript
+- React
+- Zustand
+- DaisyUI
+- Tailwind CSS
+- React Hook Form
+- Zod
+- Vite
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## Media
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+### Empty form view
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+![empty state](https://github.com/galletafromjell666/react-curl-crafter/blob/assets/empty.png?raw=true)
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+### Mobile view
+
+![mobile or tablet view](https://github.com/galletafromjell666/react-curl-crafter/blob/assets/md.png?raw=true)

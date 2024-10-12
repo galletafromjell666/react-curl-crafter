@@ -69,7 +69,7 @@ function Form() {
 
   const onSubmit: SubmitHandler<FormState> = (data) => {
     const value = craftCurl(data);
-    console.log(value)
+    console.log(value);
     if (!isEmpty(value.contentTypeHeader)) {
       append(value.contentTypeHeader);
     }
@@ -80,8 +80,8 @@ function Form() {
     <div className="flex-1">
       <Logo />
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="mx-4 mt-4 flex space-x-4">
-          <div className="flex flex-col gap-y-2 rounded-xl border-2 border-base-content/10 p-2">
+        <div className="mx-2 mt-2 flex flex-col items-center gap-x-4 gap-y-2 md:mx-4 md:mt-4 md:flex-row">
+          <div className="flex w-full flex-col gap-y-2 rounded-xl border-2 border-base-content/10 p-2 md:w-auto">
             <label>Method</label>
             <div className="dropdown dropdown-bottom">
               <div tabIndex={0} role="button" className="btn m-1 w-32">
@@ -109,7 +109,7 @@ function Form() {
           </div>
           <div
             data-test-id="url-section"
-            className="flex flex-1 flex-col gap-y-2 rounded-xl border-2 border-base-content/10 p-2"
+            className="flex w-full flex-col gap-y-2 rounded-xl border-2 border-base-content/10 px-2 py-3 md:h-full md:flex-1"
           >
             <label htmlFor="url">URL</label>
             <input
@@ -123,7 +123,7 @@ function Form() {
         </div>
         <div
           data-test-id="url-section"
-          className="m-4 flex flex-col gap-y-2 rounded-xl border-2 border-base-content/10 p-2"
+          className="m-2 flex flex-col gap-y-2 rounded-xl border-2 border-base-content/10 p-2 md:m-4"
         >
           <h2>Headers</h2>
           <div className="flex flex-col gap-y-2">
@@ -148,7 +148,7 @@ function Form() {
                   <button
                     type="button"
                     onClick={() => onRemoveHeader(index)}
-                    className="btn btn-outline btn-warning btn-sm"
+                    className="btn btn-outline btn-warning btn-xs md:btn-sm"
                   >
                     Remove
                   </button>
@@ -166,7 +166,7 @@ function Form() {
         </div>
         <div
           data-test-id="url-section"
-          className="m-4 flex flex-col gap-y-2 rounded-xl border-2 border-base-content/10 p-2"
+          className="m-2 flex flex-col gap-y-2 rounded-xl border-2 border-base-content/10 p-2 md:m-4"
         >
           <h2>Data</h2>
           <div className="flex flex-col items-start gap-y-2">
