@@ -1,5 +1,4 @@
 import { useCallback, useMemo, useState } from "react";
-import clsx from "clsx";
 import {
   SubmitHandler,
   useFieldArray,
@@ -10,14 +9,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Logo from "./components/Logo";
 import { getFormattedData } from "../../utils";
 import { craftCurl } from "../crafter";
-import { useSetCurlString } from "../../store/crafterStore";
 import { formSchema } from "./resolvers";
 import { FormState, Methods } from "../../types";
 
 const availableMethods: Methods[] = ["GET", "DELETE", "PUT", "POST", "PATCH"];
 
-function Form() {
-  const setCurlString = useSetCurlString();
+interface FormProps {
+  onCraft: (curlString: string) => void;
+}
+
+function Form({ onCraft }: FormProps) {
   const [isFormatDataError, setIsFormatDataError] = useState(false);
 
   const { register, handleSubmit, control, setValue, getValues, watch } =
@@ -67,7 +68,7 @@ function Form() {
   }, [method]);
 
   const onSubmit: SubmitHandler<FormState> = (data) => {
-    setCurlString(craftCurl(data));
+    onCraft(craftCurl(data));
   };
 
   return (
@@ -165,11 +166,9 @@ function Form() {
           <h2>Data</h2>
           <div className="flex flex-col items-start gap-y-2">
             <textarea
-              className={clsx(
-                "textarea h-[200px] w-full resize-none",
-                { "input-error": isFormatDataError },
-                { "textarea-bordered": !isFormatDataError },
-              )}
+              className={`textarea h-[200px] w-full resize-none ${
+                isFormatDataError ? "input-error" : "textarea-bordered"
+              }`}
               id="data"
               {...register("data")}
             />

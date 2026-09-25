@@ -1,42 +1,43 @@
-import { useTimeoutFn } from "react-use";
-import { isEmpty } from "lodash";
-import { useCurlString } from "../../store/crafterStore";
 import { useEffect, useRef, useState } from "react";
 
-function Preview() {
-  const scrollRef = useRef<HTMLDivElement>(null);
+interface PreviewProps {
+  curlString: string;
+}
 
-  const curlString = useCurlString();
+function Preview({ curlString }: PreviewProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const hideTimer = useRef<number | undefined>(undefined);
   const [isNotificationVisible, setIsNotificationVisible] = useState(false);
 
   useEffect(() => {
-    scrollRef?.current?.scrollIntoView?.({
+    scrollRef.current?.scrollIntoView({
       behavior: "smooth",
       block: "start",
       inline: "nearest",
     });
   }, [curlString]);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_isReady, _cancel, reset] = useTimeoutFn(() => {
-    setIsNotificationVisible(false);
-  }, 2500);
+  useEffect(() => () => window.clearTimeout(hideTimer.current), []);
 
-  const triggerTimeout = () => {
+  const showCopied = () => {
     setIsNotificationVisible(true);
-    reset();
+    window.clearTimeout(hideTimer.current);
+    hideTimer.current = window.setTimeout(
+      () => setIsNotificationVisible(false),
+      2500,
+    );
   };
 
   const handleCopyButtonClick = async () => {
     try {
       await navigator.clipboard.writeText(curlString);
-      triggerTimeout();
+      showCopied();
     } catch {
       // Clipboard API unavailable (e.g. insecure context); nothing to copy.
     }
   };
 
-  if (isEmpty(curlString)) return null;
+  if (!curlString) return null;
 
   return (
     <div
