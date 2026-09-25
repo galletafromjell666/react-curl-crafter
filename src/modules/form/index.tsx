@@ -4,6 +4,7 @@ import {
   useFieldArray,
   useForm,
   useFormState,
+  useWatch,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Logo from "./components/Logo";
@@ -21,7 +22,7 @@ interface FormProps {
 function Form({ onCraft }: FormProps) {
   const [isFormatDataError, setIsFormatDataError] = useState(false);
 
-  const { register, handleSubmit, control, setValue, getValues, watch } =
+  const { register, handleSubmit, control, setValue, getValues } =
     useForm<FormState>({
       mode: "onBlur",
       defaultValues: {
@@ -37,7 +38,7 @@ function Form({ onCraft }: FormProps) {
     control,
   });
 
-  const [method] = watch(["method"]);
+  const method = useWatch({ control, name: "method" });
 
   const { fields, append, remove } = useFieldArray({
     name: "headers",
