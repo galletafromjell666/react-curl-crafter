@@ -13,7 +13,6 @@ import { craftCurl } from "../crafter";
 import { useSetCurlString } from "../../store/crafterStore";
 import { formSchema } from "./resolvers";
 import { FormState, Methods } from "../../types";
-import { isEmpty } from "lodash";
 
 const availableMethods: Methods[] = ["GET", "DELETE", "PUT", "POST", "PATCH"];
 
@@ -59,7 +58,7 @@ function Form() {
     const inputData = getValues("data");
     const { stringResult, isError } = getFormattedData(inputData ?? "");
 
-    setValue("data", stringResult);
+    if (!isError) setValue("data", stringResult);
     setIsFormatDataError(isError);
   };
 
@@ -68,12 +67,7 @@ function Form() {
   }, [method]);
 
   const onSubmit: SubmitHandler<FormState> = (data) => {
-    const value = craftCurl(data);
-    console.log(value);
-    if (!isEmpty(value.contentTypeHeader)) {
-      append(value.contentTypeHeader);
-    }
-    setCurlString(value.curlString);
+    setCurlString(craftCurl(data));
   };
 
   return (
@@ -122,7 +116,7 @@ function Form() {
           </div>
         </div>
         <div
-          data-test-id="url-section"
+          data-test-id="headers-section"
           className="m-2 flex flex-col gap-y-2 rounded-xl border-2 border-base-content/10 p-2 md:m-4"
         >
           <h2>Headers</h2>
@@ -165,7 +159,7 @@ function Form() {
           </button>
         </div>
         <div
-          data-test-id="url-section"
+          data-test-id="data-section"
           className="m-2 flex flex-col gap-y-2 rounded-xl border-2 border-base-content/10 p-2 md:m-4"
         >
           <h2>Data</h2>

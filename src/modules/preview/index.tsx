@@ -27,9 +27,13 @@ function Preview() {
     reset();
   };
 
-  const handleCopyButtonClick = () => {
-    triggerTimeout();
-    navigator.clipboard.writeText(curlString);
+  const handleCopyButtonClick = async () => {
+    try {
+      await navigator.clipboard.writeText(curlString);
+      triggerTimeout();
+    } catch {
+      // Clipboard API unavailable (e.g. insecure context); nothing to copy.
+    }
   };
 
   if (isEmpty(curlString)) return null;
