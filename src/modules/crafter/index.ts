@@ -35,7 +35,7 @@ export function getData(
   const { data } = formState;
   if (!data) return null;
 
-  let body = data;
+  let body: string;
   let contentHeader: Header | null = null;
 
   try {
@@ -50,6 +50,7 @@ export function getData(
       };
     }
   } catch {
+    body = `'${data.replace(/'/g, "'\\''")}'`;
     if (createContentTypeHeader) {
       contentHeader = { key: CONTENT_TYPE_HEADER_KEY, value: "text/plain" };
     }

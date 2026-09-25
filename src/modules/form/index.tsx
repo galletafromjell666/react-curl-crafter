@@ -113,7 +113,7 @@ function Form({ onCraft }: FormProps) {
               {...register("url")}
               type="text"
               placeholder="http://127.0.0.1:8080/test"
-              className="input input-bordered w-full"
+              className="input w-full"
             />
           </div>
         </div>
@@ -133,13 +133,13 @@ function Form({ onCraft }: FormProps) {
                     {...register(`headers.${index}.key` as const)}
                     type="text"
                     placeholder="Header key"
-                    className="input input-bordered w-full"
+                    className="input w-full"
                   />
                   <input
                     {...register(`headers.${index}.value` as const)}
                     type="text"
                     placeholder="Header value"
-                    className="input input-bordered w-full"
+                    className="input w-full"
                   />
                   <button
                     type="button"
@@ -167,8 +167,8 @@ function Form({ onCraft }: FormProps) {
           <h2>Data</h2>
           <div className="flex flex-col items-start gap-y-2">
             <textarea
-              className={`textarea h-[200px] w-full resize-none ${
-                isFormatDataError ? "input-error" : "textarea-bordered"
+              className={`textarea h-[200px] w-full resize-none${
+                isFormatDataError ? " input-error" : ""
               }`}
               id="data"
               {...register("data")}

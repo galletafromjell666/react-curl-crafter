@@ -18,11 +18,17 @@ test("getData does not strip spaces inside JSON string values", () => {
   assert.equal(out.contentHeader?.value, "application/json");
 });
 
-test("getData does not strip spaces from non-JSON bodies", () => {
+test("getData keeps and shell-quotes non-JSON bodies", () => {
   const out = getData(form({ data: "name=John Doe" }), true);
   assert.ok(out);
-  assert.ok(out.stringData.includes("--data-raw name=John Doe"));
+  assert.ok(out.stringData.includes("--data-raw 'name=John Doe'"));
   assert.equal(out.contentHeader?.value, "text/plain");
+});
+
+test("getData escapes single quotes in non-JSON bodies", () => {
+  const out = getData(form({ data: "it's fine" }), true);
+  assert.ok(out);
+  assert.ok(out.stringData.includes("--data-raw 'it'\\''s fine'"));
 });
 
 test("craftCurl emits method, headers, content-type and intact data", () => {

@@ -16,7 +16,6 @@ A client-side web exclusive app that helps you quickly generate cURL commands fo
 
 - TypeScript
 - React
-- Zustand
 - DaisyUI
 - Tailwind CSS
 - React Hook Form
