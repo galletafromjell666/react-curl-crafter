@@ -11,5 +11,5 @@ export const formSchema = z.object({
   method: methodsEnum,
   url: z.string().min(1),
   data: z.string().optional(),
-  headers: z.array(headerSchema).optional().default([]),
+  headers: z.array(headerSchema),
 });

@@ -1,9 +1,10 @@
-import fmt2json from "format-to-json";
-
 export function getFormattedData(value: string) {
-  const { result: stringResult, errFormat: isError } = fmt2json(value, {
-    withDetails: true,
-    strict: true,
-  });
-  return { stringResult, isError };
+  try {
+    return {
+      stringResult: JSON.stringify(JSON.parse(value), null, 2),
+      isError: false,
+    };
+  } catch {
+    return { stringResult: value, isError: true };
+  }
 }

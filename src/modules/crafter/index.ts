@@ -1,85 +1,47 @@
-import { isEmpty } from "lodash";
-import { FormState, Header } from "../../types";
+import type { FormState, Header } from "../../types";
 
-const NEW_LINE = "\n";
-const TAB = "\t";
-const CONTINUE_ON_NEW_LINE = ` \\${NEW_LINE}${TAB}`;
+const CONTINUE_ON_NEW_LINE = " \\\n\t";
 const CONTENT_TYPE_HEADER_KEY = "Content-Type";
 
-export function craftCurl(formState: FormState) {
-  console.log(formState);
-  let curlString = `curl '${formState.url}'${CONTINUE_ON_NEW_LINE}-X '${formState.method}'`;
-  const isContentTypeHeaderOnFormState = verifyContentTypeHeader(
-    formState.headers,
-  );
-  const data = getData(formState, !isContentTypeHeaderOnFormState);
-  const headers = [...formState.headers];
+// POSIX-safe single-quote wrapping: close, emit an escaped quote, reopen.
+// Keeps an argument one shell token, whatever it contains.
+const shQuote = (value: string) => `'${value.replace(/'/g, "'\\''")}'`;
 
-  if (data && !verifyContentTypeHeader(headers)) {
-    headers.push(data.contentHeader!);
-  }
-
-  console.log(headers, isContentTypeHeaderOnFormState);
-  const headersString = getHeadersString(headers);
-
-  if (headers) curlString = curlString.concat(headersString);
-  if (data?.stringData) curlString = curlString.concat(data.stringData);
-
-  const contentTypeHeader = !isContentTypeHeaderOnFormState
-    ? data?.contentHeader
-    : null;
-
-  return { curlString, contentTypeHeader };
-}
-
-export function getHeadersString(headers: Header[]): string {
-  if (isEmpty(headers)) return "";
-  // not empty
-  let headersString = "";
-  headers.forEach((header) => {
-    const headerString = `${CONTINUE_ON_NEW_LINE}-H '${header.key}: ${header.value}'`;
-    headersString = headersString.concat(headerString);
-  });
-  return headersString;
-}
-
-export function getData(
-  formState: FormState,
-  createContentTypeHeader: boolean,
-): { contentHeader: Header | null; stringData: string } | null {
-  const { data } = formState;
-  if (isEmpty(data)) return null;
-  // Not empty
-  let stringData = "";
-  let contentHeader = null;
+function parseBody(data: string): { body: string; contentType: string } {
   try {
-    const jsonStringData = JSON.stringify(JSON.parse(data as string));
-    stringData = stringData.concat("$", `'${jsonStringData}'`);
+    // Compact JSON so the command stays on a single line.
+    return {
+      body: JSON.stringify(JSON.parse(data)),
+      contentType: "application/json",
+    };
+  } catch {
+    return { body: data, contentType: "text/plain" };
+  }
+}
 
-    if (createContentTypeHeader) {
-      contentHeader = {
-        key: CONTENT_TYPE_HEADER_KEY,
-        value: "application/json",
-      };
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (error) {
-    stringData = data as string;
-    if (createContentTypeHeader) {
-      contentHeader = { key: CONTENT_TYPE_HEADER_KEY, value: "text/plain" };
-    }
+export function craftCurl(formState: FormState): string {
+  const parts = [
+    `curl ${shQuote(formState.url)}`,
+    `-X ${shQuote(formState.method)}`,
+  ];
+
+  for (const header of formState.headers) {
+    parts.push(`-H ${shQuote(`${header.key}: ${header.value}`)}`);
   }
 
-  // Remove all whitespace and \r or \n characters
-  let newStr = stringData.replace(/\\r|\\n/g, "").replace(/\s+/g, "");
+  if (formState.data) {
+    const { body, contentType } = parseBody(formState.data);
+    if (!verifyContentTypeHeader(formState.headers)) {
+      parts.push(`-H ${shQuote(`${CONTENT_TYPE_HEADER_KEY}: ${contentType}`)}`);
+    }
+    parts.push(`--data-raw ${shQuote(body)}`);
+  }
 
-  newStr = `${CONTINUE_ON_NEW_LINE}--data-raw ${newStr}`;
-
-  return { contentHeader, stringData: newStr };
+  return parts.join(CONTINUE_ON_NEW_LINE);
 }
 
 // checks if there is a content type header
-export function verifyContentTypeHeader(headers: Header[]) {
+export function verifyContentTypeHeader(headers: Header[]): boolean {
   return headers.some(
     (h) => h.key.toLowerCase() === CONTENT_TYPE_HEADER_KEY.toLowerCase(),
   );

@@ -1,27 +1,28 @@
 import { useCallback, useMemo, useState } from "react";
-import clsx from "clsx";
 import {
   SubmitHandler,
   useFieldArray,
   useForm,
   useFormState,
+  useWatch,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Logo from "./components/Logo";
 import { getFormattedData } from "../../utils";
 import { craftCurl } from "../crafter";
-import { useSetCurlString } from "../../store/crafterStore";
 import { formSchema } from "./resolvers";
 import { FormState, Methods } from "../../types";
-import { isEmpty } from "lodash";
 
 const availableMethods: Methods[] = ["GET", "DELETE", "PUT", "POST", "PATCH"];
 
-function Form() {
-  const setCurlString = useSetCurlString();
+interface FormProps {
+  onCraft: (curlString: string) => void;
+}
+
+function Form({ onCraft }: FormProps) {
   const [isFormatDataError, setIsFormatDataError] = useState(false);
 
-  const { register, handleSubmit, control, setValue, getValues, watch } =
+  const { register, handleSubmit, control, setValue, getValues } =
     useForm<FormState>({
       mode: "onBlur",
       defaultValues: {
@@ -37,7 +38,7 @@ function Form() {
     control,
   });
 
-  const [method] = watch(["method"]);
+  const method = useWatch({ control, name: "method" });
 
   const { fields, append, remove } = useFieldArray({
     name: "headers",
@@ -59,7 +60,7 @@ function Form() {
     const inputData = getValues("data");
     const { stringResult, isError } = getFormattedData(inputData ?? "");
 
-    setValue("data", stringResult);
+    if (!isError) setValue("data", stringResult);
     setIsFormatDataError(isError);
   };
 
@@ -68,12 +69,7 @@ function Form() {
   }, [method]);
 
   const onSubmit: SubmitHandler<FormState> = (data) => {
-    const value = craftCurl(data);
-    console.log(value);
-    if (!isEmpty(value.contentTypeHeader)) {
-      append(value.contentTypeHeader);
-    }
-    setCurlString(value.curlString);
+    onCraft(craftCurl(data));
   };
 
   return (
@@ -117,12 +113,12 @@ function Form() {
               {...register("url")}
               type="text"
               placeholder="http://127.0.0.1:8080/test"
-              className="input input-bordered w-full"
+              className="input w-full"
             />
           </div>
         </div>
         <div
-          data-test-id="url-section"
+          data-test-id="headers-section"
           className="m-2 flex flex-col gap-y-2 rounded-xl border-2 border-base-content/10 p-2 md:m-4"
         >
           <h2>Headers</h2>
@@ -137,13 +133,13 @@ function Form() {
                     {...register(`headers.${index}.key` as const)}
                     type="text"
                     placeholder="Header key"
-                    className="input input-bordered w-full"
+                    className="input w-full"
                   />
                   <input
                     {...register(`headers.${index}.value` as const)}
                     type="text"
                     placeholder="Header value"
-                    className="input input-bordered w-full"
+                    className="input w-full"
                   />
                   <button
                     type="button"
@@ -165,17 +161,15 @@ function Form() {
           </button>
         </div>
         <div
-          data-test-id="url-section"
+          data-test-id="data-section"
           className="m-2 flex flex-col gap-y-2 rounded-xl border-2 border-base-content/10 p-2 md:m-4"
         >
           <h2>Data</h2>
           <div className="flex flex-col items-start gap-y-2">
             <textarea
-              className={clsx(
-                "textarea h-[200px] w-full resize-none",
-                { "input-error": isFormatDataError },
-                { "textarea-bordered": !isFormatDataError },
-              )}
+              className={`textarea h-[200px] w-full resize-none${
+                isFormatDataError ? " input-error" : ""
+              }`}
               id="data"
               {...register("data")}
             />
